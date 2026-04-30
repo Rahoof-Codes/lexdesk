@@ -1,31 +1,38 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Briefcase, Receipt,
-  FolderLock, Users, Calendar, Settings, LogOut, Scale
+  FolderLock, Calendar, Settings, LogOut, Scale
 } from 'lucide-react'
 import { useState } from 'react'
+import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
-  { to: '/',         icon: LayoutDashboard, label: 'Dashboard'     },
-  { to: '/cases',    icon: Briefcase,       label: 'Cases'         },
-  { to: '/billing',  icon: Receipt,         label: 'Billing'       },
-  { to: '/vault',    icon: FolderLock,      label: 'Document Vault'},
-  { to: '/clients',  icon: Users,           label: 'Client Portal' },
-  { to: '/calendar', icon: Calendar,        label: 'Calendar'      },
+  { to: '/',         icon: LayoutDashboard, label: 'Dashboard'      },
+  { to: '/cases',    icon: Briefcase,       label: 'Cases'          },
+  { to: '/billing',  icon: Receipt,         label: 'Billing'        },
+  { to: '/vault',    icon: FolderLock,      label: 'Document Vault' },
+  { to: '/calendar', icon: Calendar,        label: 'Calendar'       },
 ]
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
+  const { logout } = useAuth()
+  const navigate   = useNavigate()
+
+  function handleLogout() {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <aside className={`
-      ${collapsed ? 'w-16' : 'w-60'} 
-      transition-all duration-300 flex flex-col 
-      bg-slate-950 border-r border-slate-800 
+      ${collapsed ? 'w-16' : 'w-60'}
+      transition-all duration-300 flex flex-col
+      bg-slate-950 border-r border-slate-800
       h-screen sticky top-0 shrink-0
     `}>
 
-      {/* Logo */}
+      {/* ── Logo ── */}
       <div className="px-4 py-5 border-b border-slate-800 flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-yellow-500 flex items-center justify-center shrink-0">
           <Scale size={16} className="text-slate-950" />
@@ -40,7 +47,7 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* Nav Links */}
+      {/* ── Nav Links ── */}
       <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
         {NAV.map(({ to, icon: Icon, label }) => (
           <NavLink
@@ -48,8 +55,8 @@ export default function Sidebar() {
             to={to}
             end={to === '/'}
             className={({ isActive }) => `
-              flex items-center gap-3 px-3 py-2.5 rounded-xl 
-              transition-all duration-200 group
+              flex items-center gap-3 px-3 py-2.5 rounded-xl
+              transition-all duration-200
               ${isActive
                 ? 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/25'
                 : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800/60'
@@ -60,27 +67,42 @@ export default function Sidebar() {
             {!collapsed && (
               <span className="text-sm font-mono truncate">{label}</span>
             )}
+            {!collapsed && (
+              <NavLink to={to} end={to === '/'}>
+                {({ isActive }) => isActive
+                  ? <div className="ml-auto w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                  : null
+                }
+              </NavLink>
+            )}
           </NavLink>
         ))}
       </nav>
 
-      {/* Bottom */}
+      {/* ── Bottom ── */}
       <div className="border-t border-slate-800 p-3 space-y-0.5">
         <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:text-slate-200 hover:bg-slate-800/60 transition-colors">
-          <Settings size={18} />
+          <Settings size={18} className="shrink-0" />
           {!collapsed && <span className="text-sm font-mono">Settings</span>}
         </button>
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors">
-          <LogOut size={18} />
+
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+        >
+          <LogOut size={18} className="shrink-0" />
           {!collapsed && <span className="text-sm font-mono">Sign Out</span>}
         </button>
+
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-400 transition-colors mt-1 text-xs font-mono"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-400 transition-colors mt-1"
         >
-          {collapsed ? '→' : '← Collapse'}
+          <span className="text-sm">{collapsed ? '→' : '←'}</span>
+          {!collapsed && <span className="text-xs font-mono text-slate-600">Collapse</span>}
         </button>
       </div>
+
     </aside>
   )
 }

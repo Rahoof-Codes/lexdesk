@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Advocate {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("advocate")
+  createdAt DateTime @default(now())
+  cases     Case[]
+  invoices  Invoice[]
+}
+
+model Case {
+  id          String    @id @default(cuid())
+  caseNumber  String    @unique
+  client      String
+  type        String
+  status      String    @default("Active")
+  priority    String    @default("medium")
+  court       String
+  judge       String?
+  filedDate   DateTime  @default(now())
+  nextDate    DateTime?
+  description String?
+  retainer    Float     @default(0)
+  paid        Float     @default(0)
+  advocateId  String
+  advocate    Advocate  @relation(fields: [advocateId], references: [id])
+  documents   Document[]
+  notes       Note[]
+  invoices    Invoice[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  caseId    String
+  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  name       String
+  url        String
+  size       String
+  type       String
+  caseId     String
+  case       Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  uploadedBy String
+  createdAt  DateTime @default(now())
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  invoiceNumber String @unique
+  client      String
+  description String
+  amount      Float
+  paid        Float    @default(0)
+  status      String   @default("Pending")
+  dueDate     DateTime
+  caseId      String
+  case        Case     @relation(fields: [caseId], references: [id])
+  advocateId  String
+  advocate    Advocate @relation(fields: [advocateId], references: [id])
+  createdAt   DateTime @default(now())
+}
