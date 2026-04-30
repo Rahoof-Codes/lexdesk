@@ -1,6 +1,14 @@
+
 {
-"scripts": {
-  "dev": "nodemon src/index.js",
-  "start": "node src/index.js"
-}
+  "name": "lexdesk-backend",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "build": "npx prisma generate"
+  }
+
 }
